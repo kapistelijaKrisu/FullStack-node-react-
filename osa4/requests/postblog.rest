@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title": "le fu",
+    "author": "me",
+    "url": "asd.fi",
+    "likes": 22
+}
