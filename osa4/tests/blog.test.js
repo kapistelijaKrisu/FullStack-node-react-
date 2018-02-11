@@ -1,14 +1,14 @@
 const listHelper = require('../utils/for_testing')
 const blogDummies = require('../utils/bloglist_dummies_testing')
 
-test('dummy is called', () => {
+test.skip('dummy is called', () => {
   const blogs = []
 
   const result = listHelper.dummy(blogs)
   expect(result).toBe(1)
 })
 
-describe('total likes', () => {
+describe.skip('total likes', () => {
   const listWithOneBlog = blogDummies.listWithOneBlog
 
   test('when list has only one blog equals the likes of that', () => {
@@ -23,7 +23,7 @@ describe('total likes', () => {
   })
 })
 
-describe('most likes', () => {
+describe.skip('most likes', () => {
   const listWithOneBlog = blogDummies.listWithOneBlog
 
   test('when list has only one blog it is the one with most likes as well', () => {
@@ -38,7 +38,7 @@ describe('most likes', () => {
   })
 })
 
-describe('author with most blogs', () => {
+describe.skip('author with most blogs', () => {
   const listWithOneBlog = blogDummies.listWithOneBlog
 
   test('when list has only one blog its author is the one with most blogs as well', () => {
@@ -61,7 +61,7 @@ describe('author with most blogs', () => {
   })
 })
 
-describe('author with most likes', () => {
+describe.skip('author with most likes', () => {
   const listWithOneBlog = blogDummies.listWithOneBlog
 
   test('when list has only one blog its author has most likes as well', () => {

@@ -11,16 +11,13 @@ const formatBlog = (blog) => {
   }
 }
 
-blogsRouter.get('/', (request, response) => {
-  Blog
-    .find({})
-    .then(blogs => {
-      response.json(blogs.map(formatBlog))
-    })
+blogsRouter.get('/', async (request, response) => {
+  const blogs = await Blog.find({})
+  response.json(blogs.map(formatBlog))
+
 })
 
-
-blogsRouter.post('/', (request, response) => {
+blogsRouter.post('/', async (request, response) => {
   const body = request.body
   if (body === undefined) {
     response.status(400).json({ error: 'content missing' })
@@ -32,15 +29,9 @@ blogsRouter.post('/', (request, response) => {
     url: body.url,
     likes: body.likes
   })
-
-  blog
-    .save()
-    .then(blog => {
-      return formatBlog(blog)
-    })
-    .then(formattedBlog => {
-      response.json(formattedBlog)
-    })
-
+  const blogdb = await blog.save()
+  formattedBlog = formatBlog(blogdb)
+  response.json(formattedBlog)
 })
+
 module.exports = blogsRouter
