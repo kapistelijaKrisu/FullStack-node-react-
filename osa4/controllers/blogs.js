@@ -1,6 +1,7 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
 const formatBlog = (blog) => {
   return {
@@ -13,11 +14,12 @@ const formatBlog = (blog) => {
   }
 }
 
+
 blogsRouter.get('/', async (request, response) => {
   try {
     const blogs = await Blog
-    .find({})
-    .populate('user', { username: 1, name: 1 })
+      .find({})
+      .populate('user', { username: 1, name: 1 })
 
     response.json(blogs.map(formatBlog))
   } catch (exception) {
@@ -25,12 +27,27 @@ blogsRouter.get('/', async (request, response) => {
     response.status(500).json({ error: 'something went wrong...' })
   }
 })
-
 blogsRouter.delete('/:id', async (request, response) => {
   try {
+    const token = request.token
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+
+    if (!token || !decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+
+    let user = await User.findById(decodedToken.id)
+    console.log(user.blogs)
+    blogs.map(blog.toString)
+
+
+
+    await user.save()
     await Blog.findByIdAndRemove(request.params.id)
-    response.status(204).end()
-    
+    return response.status(204).end()
+
+    response.status(400).send({ error: 'not owner of blog' })
   } catch (exception) {
     console.log(exception)
     response.status(400).send({ error: 'malformatted id' })
@@ -39,6 +56,13 @@ blogsRouter.delete('/:id', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   try {
+    const token = request.token
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+
+    if (!token || !decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
     let body = request.body
     if (body === undefined) {
       return response.status(400).json({ error: 'content missing' })
@@ -53,7 +77,7 @@ blogsRouter.post('/', async (request, response) => {
       body.likes = 0
     }
 
-    const user = await User.findById(body.userId)
+    const user = await User.findById(decodedToken.id)
 
     const blog = new Blog({
       title: body.title,
