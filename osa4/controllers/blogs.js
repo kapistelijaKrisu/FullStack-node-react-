@@ -36,14 +36,15 @@ blogsRouter.delete('/:id', async (request, response) => {
       return response.status(401).json({ error: 'token missing or invalid' })
     }
 
-
     let user = await User.findById(decodedToken.id)
-    console.log(user.blogs)
-    blogs.map(blog.toString)
 
+    const containsBlog = user.blogs.find(blog => blog.toString() === request.params.id.toString()) 
+    if (containsBlog === undefined) {
+      return response.status(400).json({ error: 'you do not own that blog or it does not exist' })
+    }
 
-
-    await user.save()
+    user.blogs = user.blogs.filter(blog => blog.toString() !== request.params.id.toString())
+    await User.findByIdAndUpdate(user.id, user)
     await Blog.findByIdAndRemove(request.params.id)
     return response.status(204).end()
 
@@ -84,7 +85,7 @@ blogsRouter.post('/', async (request, response) => {
       author: body.author,
       url: body.url,
       likes: body.likes,
-      user: "5a80d10a3772e17d5e572b45"
+      user: user
     })
     const blogdb = await blog.save()
 
