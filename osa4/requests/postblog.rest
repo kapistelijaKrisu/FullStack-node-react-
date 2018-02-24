@@ -1,6 +1,6 @@
-POST http://localhost:3001/api/blogs
+POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFzZCIsImlkIjoiNWE4MmZlNzc2YWQ0ZWYzZmM5NTIwYzI3IiwiaWF0IjoxNTE4NTM0MjcwfQ.4lZX4ydSyZgpAL20IhLJ_WJjjQtRTiNNWYiPdGbL1qI
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFzZCIsImlkIjoiNWE4MmZlNzc2YWQ0ZWYzZmM5NTIwYzI3IiwiaWF0IjoxNTE5NDEzODEwfQ.1xk3l4KP9H4U9sp9MIcOHQAB2Kr28Q3kdx4YwKfre98
 
 {
     "title": "le fuuuuuuuuuuuuuuuuuu",
