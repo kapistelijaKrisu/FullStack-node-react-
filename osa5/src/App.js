@@ -4,6 +4,7 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import LoginForm from './components/LoginForm'
 
 class App extends React.Component {
   constructor(props) {
@@ -35,33 +36,6 @@ class App extends React.Component {
       this.setState({ user })
       blogService.setToken(user.token)
     }
-  }
-
-  addBlog = async (event) => {
-    event.preventDefault()
-    try {
-      const newBlog = await blogService.create(
-        this.state.newBlog
-      )
-      this.blogForm.toggleVisibility()
-      this.setState({
-        blogs: this.state.blogs.concat(newBlog),
-        newBlog: {
-          title: '',
-          author: '',
-          url: ''
-        },
-        message: 'Blog has been posted!'
-      })
-    } catch (exception) {
-      this.setState({
-        message: 'blogin postaus epäonnistui',
-      })
-    }
-
-    setTimeout(() => {
-      this.setState({ message: null })
-    }, 5000)
   }
   login = async (event) => {
     event.preventDefault()
@@ -95,19 +69,36 @@ class App extends React.Component {
     }, 5000)
   }
 
-  handleBlogChange = (event) => {
-    let blog = this.state.newBlog
-    blog[event.target.name] = event.target.value
-    this.setState({ newBlog: blog })
-  }
+  addBlog = async (event) => {
+    event.preventDefault()
+    try {
+      const newBlog = await blogService.create(
+        this.state.newBlog
+      )
+      this.blogForm.toggleVisibility()
+      this.setState({
+        blogs: this.state.blogs.concat(newBlog),
+        newBlog: {
+          title: '',
+          author: '',
+          url: ''
+        },
+        message: 'Blog has been posted!'
+      })
+    } catch (exception) {
+      this.setState({
+        message: 'blogin postaus epäonnistui',
+      })
+    }
 
-  handleLoginFieldChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value })
+    setTimeout(() => {
+      this.setState({ message: null })
+    }, 5000)
   }
 
   deleteBlog = async ({ id }) => {
     try {
-      await blogService.deleteBlog(id)
+      await blogService.deleteOne(id)
       const del = this.state.blogs.filter(blog => blog.id.toString() !== id.toString())
       this.setState({
         blogs: del,
@@ -126,9 +117,16 @@ class App extends React.Component {
   updateBlog = async ({ blog }) => {
     let success = false
     try {
+      const updated = this.state.blogs
+      let it = this.state.blogs.find(function (element) {
+        return element.id.toString() === blog.id.toString();
+      });
+      it.likes++
+
       await blogService.update(blog.id, blog)
       this.setState({
-        message: 'blog has been liked!'
+        message: 'blog has been liked!',
+        blogs: updated
       })
       success = true
     } catch (exception) {
@@ -142,44 +140,18 @@ class App extends React.Component {
     return success
   }
 
-  render() {
-    const blogList = () => (
-      <div>
-        <h2>blogit</h2>
-        {this.state.blogs.map(blog =>
-          <Blog key={blog.id}
-            blog={blog}
-            parent={this} />
-        )}
-      </div>
-    )
+  handleBlogChange = (event) => {
+    let blog = this.state.newBlog
+    blog[event.target.name] = event.target.value
+    this.setState({ newBlog: blog })
+  }
 
-    const loginForm = () => (
-      <div>
-        <h2>Kirjaudu</h2>
-        <form onSubmit={this.login}>
-          <div>
-            käyttäjätunnus
-            <input
-              type="text"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <div>
-            salasana
-            <input
-              type="password"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <button type="submit">kirjaudu</button>
-        </form>
-      </div>
-    )
+  handleLoginFieldChange = (event) => {
+    this.setState({ [event.target.name]: event.target.value })
+  }
+
+  render() {
+
 
     const userlog = () => (
       <div>
@@ -194,7 +166,14 @@ class App extends React.Component {
         <h1>Blogit</h1>
         <Notification message={this.state.message} />
         {this.state.user === null ?
-          loginForm() :
+          <div>
+            <LoginForm
+              username={this.state.username}
+              password={this.state.password}
+              handleLoginFieldChange={this.handleLoginFieldChange}
+              login={this.login}
+            />
+          </div> :
           <div>
             {userlog()}
             <Togglable buttonLabel="new blog" ref={component => this.blogForm = component}>
@@ -206,22 +185,42 @@ class App extends React.Component {
                 handleChange={this.handleBlogChange}
               />
             </Togglable>
-            {blogList()}
+            <BlogList
+              blogs={this.state.blogs}
+              parent={this} />
           </div>
         }
       </div>
-    );
+    )
   }
 }
 
 
+const BlogList = ({ blogs, parent }) => {
+  blogs.sort(function (a, b) {
+    return b.likes - a.likes;
+  })
+  const isAuthorized = (blog, user) => {
+    if (blog.user === undefined || blog.user === null) {
+      return true
+    }
+    if (user === undefined || user === null) {
+      return false
+    }
+    return user.name === blog.user.name
+  }
 
-
-
-
-
-
-
+  return (<div>
+    <h2>blogit</h2>
+    {blogs.map(blog =>
+      <Blog key={blog.id}
+        blog={blog}
+        parent={parent}
+        showDelete={isAuthorized(blog, parent.state.user)}
+      />
+    )}
+  </div>)
+}
 
 
 const BlogForm = ({ onSubmit, handleChange, title, author, url }) => {

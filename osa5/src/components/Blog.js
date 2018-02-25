@@ -1,12 +1,11 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 class Blog extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      visible: false,
-      blog: props.blog,
-      insideOf: props.parent
+      visible: false
     }
   }
 
@@ -15,15 +14,11 @@ class Blog extends React.Component {
   }
 
   remove = () => {
-    this.state.insideOf.deleteBlog({ id: this.state.blog.id })
+    this.props.parent.deleteBlog({ id: this.props.blog.id })
   }
 
   addLike = async () => {
-    let updated = Object.assign({}, this.state.blog)
-    updated.likes++
-    if (await this.state.insideOf.updateBlog({ blog: updated })) {
-      this.setState({blog: updated})
-    } 
+    await this.props.parent.updateBlog({ blog: this.props.blog })
   }
 
   render() {
@@ -37,27 +32,28 @@ class Blog extends React.Component {
 
     const hideWhenVisible = { display: this.state.visible ? 'none' : '' }
     const showWhenVisible = { display: this.state.visible ? '' : 'none' }
-
+    const hideDeleteVisible = { display: this.props.showDelete ? '' : 'none' }
+    
     return (
       <div>
         < div style={blogStyle} >
-          <div style={hideWhenVisible} onClick={this.toggleVisibility}>
-            <p>{this.state.blog.title}:{this.state.blog.author}</p>
+          <div style={hideWhenVisible} onClick={this.toggleVisibility} className="expandable">
+            <p>{this.props.blog.title}:{this.props.blog.author}</p>
           </div>
 
-          <div style={showWhenVisible}>
+          <div style={showWhenVisible} className="fullDetail">
             <p onClick={this.toggleVisibility}>
-              {this.state.blog.title}:{this.state.blog.author}
+              {this.props.blog.title}:{this.props.blog.author}
             </p>
-            <a href={this.state.blog.url}>{this.state.blog.url}</a>
-            <p> likes:{this.state.blog.likes}</p>
-            <p> added by:{this.state.blog.user.name}</p>
+            <a href={this.props.blog.url}>{this.props.blog.url}</a>
+            <p> likes:{this.props.blog.likes}</p>
+            <p> added by:{this.props.blog.user.name}</p>
 
             <button onClick={this.addLike}>like!</button>
+
+             <div style={hideDeleteVisible}>
             <button onClick={this.remove}>remove!</button>
-
-
-
+            </div>
           </div>
 
         </div>
@@ -65,5 +61,10 @@ class Blog extends React.Component {
   }
 }
 
+Blog.propTypes = {
+  parent: PropTypes.object.isRequired,
+  blog: PropTypes.object.isRequired,
+  showDelete: PropTypes.bool.isRequired
+}
 
 export default Blog
