@@ -1,18 +1,17 @@
 import React from 'react'
 import { createJoke } from '../reducers/anecdoteReducer'
-import { notify, clearNore } from '../reducers/notificationReducer'
+import { notify } from '../reducers/notificationReducer'
 import { connect } from 'react-redux'
 
 class AnecdoteForm extends React.Component {
-  handleSubmit = (e) => {
+  
+  handleSubmit = async (e) => {
     e.preventDefault()
     const content = e.target.anecdote.value
-    this.props.createJoke(content)
     e.target.anecdote.value = ''
-    this.props.notify('new anecdote was created: \'' + content + '\'!')
-    setTimeout(() => {
-      this.props.clearNore()
-    }, 5000)
+    this.props.createJoke(content)
+
+    this.props.notify('new anecdote was created: \'' + content + '\'!', 5)
   }
   render() {
     return (
@@ -34,7 +33,7 @@ const mapStateToProps = (state) => {
 }
 const ConnectedAnecdoteForm = connect(
   mapStateToProps,
-  {  notify, clearNore, createJoke }
+  { notify, createJoke }
 
 )(AnecdoteForm)
 

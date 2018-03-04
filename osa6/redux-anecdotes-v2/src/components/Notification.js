@@ -8,7 +8,6 @@ class Notification extends React.Component {
       padding: 10,
       borderWidth: 1
     }
-    console.log(this.props)
     const { note } = this.props
     
     return (

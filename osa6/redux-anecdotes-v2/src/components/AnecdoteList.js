@@ -1,29 +1,24 @@
 import React from 'react'
-import { voteJoke } from '../reducers/anecdoteReducer'
-import { notify, clearNore } from '../reducers/notificationReducer'
+import { updateJoke } from '../reducers/anecdoteReducer'
+import { notify } from '../reducers/notificationReducer'
 import { connect } from 'react-redux'
 
 class AnecdoteList extends React.Component {
 
-  voteFunction(anecdote) {
-    this.props.voteJoke(anecdote.id)
+  async voteFunction(anecdote) {
+    anecdote.votes++
+    this.props.updateJoke(anecdote)
 
-    this.props.notify('you voted \'' + anecdote.content + '\'')
-    setTimeout(() => {
-      this.props.clearNore()
-    }, 5000)
+    this.props.notify(`you voted '${anecdote.content}'`,3)
+    
   }
 
   render() {
-    
-    const anecdotes = () => {
-      const { jokes, filter } = this.props    
-      return jokes.filter(joke => joke.content.includes(filter))
-    }
+
     return (
       <div>
         <h2>Anecdotes</h2>
-        {anecdotes().sort((a, b) => b.votes - a.votes).map(anecdote =>
+        {this.props.anecdotesToShow.map(anecdote =>
           <div key={anecdote.id}>
             <div>
               {anecdote.content}
@@ -43,15 +38,21 @@ class AnecdoteList extends React.Component {
   }
 }
 
+const anecdotesToShow = (jokes, filter) => {
+  const filtered = jokes.filter(joke => joke.content.includes(filter))
+  return filtered.sort((a, b) => b.votes - a.votes)
+}
+
 const mapStateToProps = (state) => {
   return {
+    anecdotesToShow: anecdotesToShow(state.jokes, state.filter),
     jokes: state.jokes,
     filter: state.filter
   }
 }
 const ConnectedAnecdoteList = connect(
   mapStateToProps,
-  { voteJoke, notify, clearNore }
+  { updateJoke, notify }
 
 )(AnecdoteList)
 

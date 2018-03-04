@@ -1,28 +1,32 @@
 
+//import store from '../store'
+
 const initialState = 'initial notification'
 
 const notificationReducer = (store = initialState, action) => {
-
     if (action.type === 'NOTIFY') {
-        return action.notification
+        return action.text
     } else if (action.type === 'CLEAR_NOTIFICATION') {
         return null
     }
     return store
 }
 
-export const notify = (notification) => {
-    return {
-        type: 'NOTIFY',
-        notification
+export const notify = (text, timeout = 5) => {
+    return async (dispatch) => {
+        dispatch(showNotification(text))
+
+        setTimeout(() => {
+            dispatch(hideNotification())
+        }, timeout * 1000)
     }
 }
 
-
-export const clearNore = () => {
-    return {
-        type: 'CLEAR_NOTIFICATION'
-    }
+const showNotification = (text) => {
+    return { type: 'NOTIFY', text }
+}
+const hideNotification = () => {
+    return { type: 'CLEAR_NOTIFICATION' }
 }
 
 export default notificationReducer
